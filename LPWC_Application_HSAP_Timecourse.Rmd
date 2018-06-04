@@ -1,0 +1,120 @@
+---
+title: "LPWC_Application_HSAP_Timecourse"
+author: "John Steill"
+date: "5/27/2018"
+output: pdf_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("LPWC", repos = "http://cran.us.r-project.org")
+library(LPWC)
+library(ggplot2)
+
+LPWC_vignette <- function(){
+    data(simdata)
+    simdata[1:5, ]
+    str(simdata)
+    timepoints <- c(0, 2, 4, 6, 8, 18, 24, 32, 48, 72)
+    timepoints
+    library(ggplot2)
+
+    set.seed(29876)
+    
+#2345678902234567890323456789042345678905234567890623456789072345678908234567890    
+    a <- rbind(c(rep(0, 5), 8, 0), c(rep(0, 4), 4.3, 0, 0)) + rnorm(2, 0, 0.5)
+    dat <- data.frame(
+        intensity = as.vector(a), 
+        time = rep(c(0, 5, 15, 30, 45, 60, 75), each = 2), 
+        genes = factor(rep(c(1, 2), 7)))
+    
+    a2 <- a
+    a2[1, ] <- c(a2[1, 2:7], NA)
+    dat2 <- data.frame(
+        intensity = as.vector(a2), 
+        time = rep(c(0, 5, 15, 30, 45, 60, 75), each = 2), 
+        genes = factor(rep(c(1, 2), 7)))
+    
+    a3 <- a
+    a3[2, ] <- c(NA, a3[2, 1:6])
+    a3[1, ] <- c(a3[1, 2:7], NA)
+    dat3 <- data.frame(
+        intensity = as.vector(a3), 
+        time = rep(c(0, 5, 15, 30, 45, 60, 75), each = 2), 
+        genes = factor(rep(c(1, 2), 7)))
+    
+    
+    plot1 <- (ggplot(dat, aes(x= time, y = intensity, group = genes)) 
+              + geom_line(aes(color = genes), size = 1.5) 
+              + labs(x = "Time (min)") + labs(y = "Intensity"))
+    plot1
+    
+    row1 <- c(0, 5, 15, 30, 45, 60, 75)
+    knitr::kable(
+        t(data.frame(Original = row1, Gene1 = row1, Gene2 = row1)), 
+        align = 'c')
+    
+    plot2 <- (ggplot(dat2, aes(x= time, y = intensity, group = genes)) 
+              + geom_line(aes(color = genes), size = 1.5) 
+              + labs(x = "Time (min)") + labs(y = "Intensity"))
+    plot2
+
+    row2 <- c(5, 15, 30, 45, 60, 75, "-")
+
+    knitr::kable(
+        t(data.frame(Original = row1, Gene1 = row2, Gene2 = row1)), 
+        align = 'c')
+    
+    plot3 <- (ggplot(dat3, aes(x= time, y = intensity, group = genes)) 
+              + geom_line(aes(color = genes), size = 1.5) 
+              + labs(x = "Time (min)") + labs(y = "Intensity"))
+    plot3
+
+    row3 <- c("-", 0, 5, 15, 30, 45, 60)
+
+    knitr::kable(
+        t(data.frame(Original = row1, Gene1 = row2, Gene2 = row3)), 
+        align = 'c')
+    LPWC::corr.bestlag(
+        simdata[49:58, ], 
+        timepoints = timepoints, 
+        max.lag = 2, 
+        penalty = "high", 
+        iter = 10)
+    dist <- 1 - LPWC::corr.bestlag(
+        simdata[11:20, ], 
+        timepoints = timepoints, 
+        max.lag = 2, 
+        penalty = "low", 
+        iter = 10)$corr
+    plot(hclust(dist))
+    dist <- 1 - LPWC::corr.bestlag(
+        simdata[11:20, ], 
+        timepoints = timepoints, 
+        max.lag = 2, 
+        penalty = "low", 
+        iter = 10)$corr
+    cutree(hclust(dist), k = 3)
+}
+LPWC_vignette()
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
