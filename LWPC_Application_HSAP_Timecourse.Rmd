@@ -4,134 +4,31 @@ author: "John Steill"
 date: "5/27/2018"
 output: pdf_document
 ---
-
-```{r setup, include=TRUE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #install.packages("LPWC", repos = "http://cran.us.r-project.org")
 library(LPWC)
 library(ggplot2)
-# dataFile = '/isiseqruns/.GUP_HOME/RUNS/C7DCVACXX/Collate/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.ec.tab'
-dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.ec.tab'
-my_data = read.table(dataFile, header=TRUE, row.names=1, sep = '\t')
-my_data = my_data[,-ncol(my_data)] # Drop description
-# The true coefficient of variance is unitless, I squared the sd to get larger counts. 
-my_data$coefVar = apply(my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
-my_data$coefVar[is.na(my_data$coefVar)]<-0
-top_var = subset(my_data[my_data$coefVar>500,],select=-c(coefVar))
-timepoints = 0:96
-solution = LPWC::corr.bestlag(top_var, timepoints = timepoints, max.lag = 20, penalty = "high", iter = 10)
-dist <- 1 - solution$corr
-distm = as.matrix(dist)
-rownames(distm) = rownames(top_var)
-dist = as.dist(distm)
-clust <- hclust(dist)
-groups = cutree(clust, k=10)
-plot(clust, cex = .5)
-# ---------------  END OF SCRIPT --------------------------------------------
-
-LPWC_vignette <- function(){
-    data(simdata)
-    simdata[1:5, ]
-    str(simdata)
-    timepoints <- c(0, 2, 4, 6, 8, 18, 24, 32, 48, 72)
-    timepoints
-    library(ggplot2)
-
-    set.seed(29876)
-    
-    a <- rbind(c(rep(0, 5), 8, 0), c(rep(0, 4), 4.3, 0, 0)) + rnorm(2, 0, 0.5)
-    dat <- data.frame(
-        intensity = as.vector(a), 
-        time = rep(c(0, 5, 15, 30, 45, 60, 75), each = 2), 
-        genes = factor(rep(c(1, 2), 7)))
-    
-    a2 <- a
-    a2[1, ] <- c(a2[1, 2:7], NA)
-    dat2 <- data.frame(
-        intensity = as.vector(a2), 
-        time = rep(c(0, 5, 15, 30, 45, 60, 75), each = 2), 
-        genes = factor(rep(c(1, 2), 7)))
-    
-    a3 <- a
-    a3[2, ] <- c(NA, a3[2, 1:6])
-    a3[1, ] <- c(a3[1, 2:7], NA)
-    dat3 <- data.frame(
-        intensity = as.vector(a3), 
-        time = rep(c(0, 5, 15, 30, 45, 60, 75), each = 2), 
-        genes = factor(rep(c(1, 2), 7)))
-    
-    
-    plot1 <- (ggplot(dat, aes(x= time, y = intensity, group = genes)) 
-              + geom_line(aes(color = genes), size = 1.5) 
-              + labs(x = "Time (min)") + labs(y = "Intensity"))
-    plot1
-    
-    row1 <- c(0, 5, 15, 30, 45, 60, 75)
-    knitr::kable(
-        t(data.frame(Original = row1, Gene1 = row1, Gene2 = row1)), 
-        align = 'c')
-    
-    plot2 <- (ggplot(dat2, aes(x= time, y = intensity, group = genes)) 
-              + geom_line(aes(color = genes), size = 1.5) 
-              + labs(x = "Time (min)") + labs(y = "Intensity"))
-    plot2
-
-    row2 <- c(5, 15, 30, 45, 60, 75, "-")
-
-    knitr::kable(
-        t(data.frame(Original = row1, Gene1 = row2, Gene2 = row1)), 
-        align = 'c')
-    
-    plot3 <- (ggplot(dat3, aes(x= time, y = intensity, group = genes)) 
-              + geom_line(aes(color = genes), size = 1.5) 
-              + labs(x = "Time (min)") + labs(y = "Intensity"))
-    plot3
-
-    row3 <- c("-", 0, 5, 15, 30, 45, 60)
-
-    knitr::kable(
-        t(data.frame(Original = row1, Gene1 = row2, Gene2 = row3)), 
-        align = 'c')
-    LPWC::corr.bestlag(
-        simdata[49:58, ], 
-        timepoints = timepoints, 
-        max.lag = 2, 
-        penalty = "high", 
-        iter = 10)
-    dist <- 1 - LPWC::corr.bestlag(
-        simdata[11:20, ], 
-        timepoints = timepoints, 
-        max.lag = 2, 
-        penalty = "low", 
-        iter = 10)$corr
-    plot(hclust(dist))
-    dist <- 1 - LPWC::corr.bestlag(
-        simdata[11:20, ], 
-        timepoints = timepoints, 
-        max.lag = 2, 
-        penalty = "low", 
-        iter = 10)$corr
-    cutree(hclust(dist), k = 3)
+source('LWPC.R')
+if (file.exists('wkspace_lo.RData')){
+    load(file='wkspace_lo.RData')
 }
-LPWC_vignette()
+```
+First we examined raw expected counts
+
+```{r, include=TRUE}
+if (!("solution_lo" %in% ls())){
+    dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.ec.tab' 
+    high_var_data = get_high_var_genes(infile=dataFile, sd_cv_thresh=500)
+    c(solution_lo,dist_lo,clust_lo)=run_lo_lpwc(dat=high_var_data, timepoints = 0:96)
+}
+if (!("sol_tpm_lo" %in% ls())){
+    dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.tpm.rescale.tab' 
+    high_var_data = get_high_var_genes(infile=dataFile, sd_cv_thresh=500)
+    c(sol_tpm_lo,dist_tpm_lo,clust_tpm_lo)=run_lo_lpwc(dat=high_var_data, timepoints = 0:96)
+}
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+``` {r, include=FALSE}
+save.image(file='wkspace_lo.RData')
 ```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
