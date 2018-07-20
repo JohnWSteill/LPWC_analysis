@@ -1,5 +1,4 @@
 library(LPWC)
-:
 run_hi_lpwc <- function(dat, timepoints){ 
     solution = LPWC::corr.bestlag(dat, timepoints = timepoints, max.lag = 20, 
                                   penalty = "high", iter = 10) 
@@ -36,15 +35,16 @@ if (!interactive()){
     }
     if (!("solution_lo" %in% ls())){
             dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.ec.tab' 
-        high_var_data = get_high_var_genes(infile=dataFile, sd_cv_thresh=500)
+        high_var_data = get_high_var_genes(dataFile=dataFile, sd_cv_thresh=500)
             c(solution_lo,dist_lo,clust_lo)=run_lo_lpwc(dat=high_var_data, timepoints = 0:96)
     }
     if (!("sol_tpm_lo" %in% ls())){
-            dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.tpm.rescale.tab' 
+        dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.tpm.rescale.tab' 
         high_var_data = get_high_var_genes(dataFile=dataFile, sd_cv_thresh=500)
-            c(sol_tpm_lo,dist_tpm_lo,clust_tpm_lo)=run_lo_lpwc(dat=high_var_data, timepoints = 0:96)
+        c(sol_tpm_lo,dist_tpm_lo,clust_tpm_lo)=run_lo_lpwc(dat=high_var_data, timepoints = 0:96)
     }
     save.image(file='wkspace_lo.RData')
+    print("finished.")
 }
 
 #c(lat, lng) %<-% list(38.061944, -122.643889)
