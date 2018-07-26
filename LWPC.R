@@ -1,5 +1,4 @@
 library(LPWC)
-:
 run_hi_lpwc <- function(dat, timepoints){ 
     solution = LPWC::corr.bestlag(dat, timepoints = timepoints, max.lag = 20, 
                                   penalty = "high", iter = 10) 
