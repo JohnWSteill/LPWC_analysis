@@ -75,18 +75,25 @@ if (!interactive()){
     print("finished.")
 }
 
+get_h_clust <- function(solution, dat){
+    distm <- as.matrix(1 - solution$corr)
+    rownames(distm) = rownames(dat)
+    dist = as.dist(distm)
+    return(hclust(dist))
+}
+
 #c(lat, lng) %<-% list(38.061944, -122.643889)
 # '''
 # solution = LPWC::corr.bestlag(top_var, timepoints = timepoints, max.lag = 20, penalty = "high", iter = 10)
 # 
-# dist <- 1 - solution$corr
-# distm = as.matrix(dist)
-# rownames(distm) = rownames(top_var)
-# dist = as.dist(distm)
-# clust <- hclust(dist)
+# 
+#
+# 
+# 
+# 
 # groups = cutree(clust, k=10)
 # save.image(file='wkspace2.RData')
-# #plot(clust, cex = .5)
+# #
 # # ---------------  END OF SCRIPT --------------------------------------------
 
 # 
@@ -101,8 +108,4 @@ if (!interactive()){
 # 
 # timepoints = 0:96
 # solution_lo = LPWC::corr.bestlag(top_var, timepoints = timepoints, max.lag = 20, penalty = "low", iter = 10)
-# dist_lo <- 1 - solution_lo$corr
-# distm_lo = as.matrix(dist_lo)
-# rownames(distm_lo) = rownames(top_var)
-# dist_lo = as.dist(distm_lo)
 
