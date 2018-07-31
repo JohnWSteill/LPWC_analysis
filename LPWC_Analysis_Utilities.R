@@ -54,6 +54,34 @@ run_lo_lpwc <- function(dat, timepoints){
     clust <- hclust(dist)
     return (list(solution=solution, dist=dist, clust=clust))
 }
+get_high_var_genes <- function(dataFile, sd_cv_thresh=500){
+    # The true coefficient of variance is unitless, 
+    # I squared the sd to get larger counts. 
+    my_data = read.table(dataFile, header=TRUE, row.names=1, sep = '\t')
+    my_data = my_data[,-ncol(my_data)] # Drop description
+    my_data$sd_coef_var = apply(my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
+    my_data$sd_coef_var[is.na(my_data$sd_coef_var)]<-0
+    return(subset(my_data[my_data$sd_coef_var>sd_cv_thresh,], 
+                  select=-c(sd_coef_var)))
+}
+if (!interactive()){
+    if (file.exists('wkspace_lo.RData')){
+            load(file='wkspace_lo.RData')
+    }
+    if (!("solution_lo" %in% ls())){
+            dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.ec.tab' 
+        high_var_data = get_high_var_genes(dataFile=dataFile, sd_cv_thresh=500)
+            c(solution_lo,dist_lo,clust_lo)=run_lo_lpwc(dat=high_var_data, timepoints = 0:96)
+    }
+    if (!("sol_tpm_lo" %in% ls())){
+        dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.tpm.rescale.tab' 
+        high_var_data = get_high_var_genes(dataFile=dataFile, sd_cv_thresh=500)
+        c(sol_tpm_lo,dist_tpm_lo,clust_tpm_lo)=run_lo_lpwc(dat=high_var_data, timepoints = 0:96)
+    }
+    save.image(file='wkspace_lo.RData')
+    print("finished.")
+}
+
 #c(lat, lng) %<-% list(38.061944, -122.643889)
 # '''
 # solution = LPWC::corr.bestlag(top_var, timepoints = timepoints, max.lag = 20, penalty = "high", iter = 10)
@@ -84,7 +112,4 @@ run_lo_lpwc <- function(dat, timepoints){
 # distm_lo = as.matrix(dist_lo)
 # rownames(distm_lo) = rownames(top_var)
 # dist_lo = as.dist(distm_lo)
-# clust_lo <- hclust(dist_lo)
-# groups_lo = cutree(clust_lo, k=10)
-# save.image(file='wkspace_lo.RData')
 
