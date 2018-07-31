@@ -1,17 +1,17 @@
 #install.packages("LPWC", repos = "http://cran.us.r-project.org")
 library(LPWC)
 
-get_high_var_genes <- function(infile, sd_cv_thresh=500){
-    # The true coefficient of variance is unitless, I squared the sd to get 
-    # larger counts.
-    # dataFile = 'Data/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm_\
-    #                                      _32a860ee85db9ac9/genes.no_mt.ec.tab'
-    data = read.table(dataFile, header=TRUE, row.names=1, sep = '\t')  
+get_high_var_genes <- function(dataFile, sd_cv_thresh=500){
+    # The true coefficient of variance is unitless, 
+    # I squared the sd to get larger counts. 
+    my_data = read.table(dataFile, header=TRUE, row.names=1, sep = '\t')
     my_data = my_data[,-ncol(my_data)] # Drop description
-    my_data$coefVar = apply(my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
-    my_data$coefVar[is.na(my_data$coefVar)]<-0
-    return( subset(my_data[my_data$coefVar>500,],select=-c(coefVar)))
+    my_data$sd_coef_var = apply(my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
+    my_data$sd_coef_var[is.na(my_data$sd_coef_var)]<-0
+    return(subset(my_data[my_data$sd_coef_var>sd_cv_thresh,], 
+                  select=-c(sd_coef_var)))
 }
+
 get_appropriate_neighbors <- function(t, degree){
     mid = round(t)
     if (mid == floor(t)){
@@ -34,6 +34,7 @@ downsample_equally_spaced_data <- function(data, n_timepoints){
     
     
 }
+
 run_hi_lpwc <- function(dat, timepoints){ 
     solution = LPWC::corr.bestlag(dat, timepoints = timepoints, max.lag = 20, 
                                   penalty = "high", iter = 10) 
@@ -44,6 +45,7 @@ run_hi_lpwc <- function(dat, timepoints){
     clust <- hclust(dist)
     return (list(solution=solution, dist=dist, clust=clust))
 }
+
 run_lo_lpwc <- function(dat, timepoints){ 
     solution = LPWC::corr.bestlag(dat, timepoints = timepoints, max.lag = 20, 
                                   penalty = "low", iter = 10) 
@@ -54,16 +56,7 @@ run_lo_lpwc <- function(dat, timepoints){
     clust <- hclust(dist)
     return (list(solution=solution, dist=dist, clust=clust))
 }
-get_high_var_genes <- function(dataFile, sd_cv_thresh=500){
-    # The true coefficient of variance is unitless, 
-    # I squared the sd to get larger counts. 
-    my_data = read.table(dataFile, header=TRUE, row.names=1, sep = '\t')
-    my_data = my_data[,-ncol(my_data)] # Drop description
-    my_data$sd_coef_var = apply(my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
-    my_data$sd_coef_var[is.na(my_data$sd_coef_var)]<-0
-    return(subset(my_data[my_data$sd_coef_var>sd_cv_thresh,], 
-                  select=-c(sd_coef_var)))
-}
+
 if (!interactive()){
     if (file.exists('wkspace_lo.RData')){
             load(file='wkspace_lo.RData')
