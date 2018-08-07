@@ -40,7 +40,7 @@ run_hi_lpwc <- function(dat, timepoints){
                                   penalty = "high", iter = 10) 
     dist <- 1 - solution$corr 
     distm = as.matrix(dist) 
-    rownames(distm) = rownames(top_var) 
+    rownames(distm) = rownames(dat) 
     dist = as.dist(distm) 
     clust <- hclust(dist)
     return (list(solution=solution, dist=dist, clust=clust))
@@ -51,7 +51,7 @@ run_lo_lpwc <- function(dat, timepoints){
                                   penalty = "low", iter = 10) 
     dist <- 1 - solution$corr 
     distm = as.matrix(dist) 
-    rownames(distm) = rownames(top_var) 
+    rownames(distm) = rownames(dat) 
     dist = as.dist(distm) 
     clust <- hclust(dist)
     return (list(solution=solution, dist=dist, clust=clust))
@@ -82,30 +82,6 @@ get_h_clust <- function(solution, dat){
     return(hclust(dist))
 }
 
-#c(lat, lng) %<-% list(38.061944, -122.643889)
-# '''
-# solution = LPWC::corr.bestlag(top_var, timepoints = timepoints, max.lag = 20, penalty = "high", iter = 10)
-# 
-# 
-#
-# 
-# 
-# 
 # groups = cutree(clust, k=10)
-# save.image(file='wkspace2.RData')
-# #
-# # ---------------  END OF SCRIPT --------------------------------------------
-
-# 
-# 
-# load(file='wkspace.RData')
-# #library(ggplot2)
-# # dataFile = '/isiseqruns/.GUP_HOME/RUNS/C7DCVACXX/Collate/Sub_391_2_pool_22adb_hg19_SOX2_plus__foregut_endoderm__32a860ee85db9ac9/genes.no_mt.ec.tab'
-
-# my_data = read.table(dataFile, header=TRUE, row.names=1, sep = '\t')
-# 
-#  
-# 
-# timepoints = 0:96
 # solution_lo = LPWC::corr.bestlag(top_var, timepoints = timepoints, max.lag = 20, penalty = "low", iter = 10)
 
