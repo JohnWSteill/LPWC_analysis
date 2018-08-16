@@ -1,6 +1,10 @@
 #install.packages("LPWC", repos = "http://cran.us.r-project.org")
 library(LPWC)
 
+dbg_fn <- function(){
+    return (list(solution=1, dist=2, clust=3))
+}
+
 get_high_var_genes <- function(dataFile, sd_cv_thresh=500){
     # The true coefficient of variance is unitless, 
     # I squared the sd to get larger counts. 
@@ -78,6 +82,9 @@ tuner <- function(dataFile, sd_cv_thresh){
     print(c(n, dim(dat)))
 }
 
+get_time_stamp_wksp_file <- function(basename){
+    return(paste0("wkspace_all.RData_", format(Sys.time(), "%Y%m%d_%H%M%S_")))
+}
 
 # groups = cutree(clust, k=10)
 # solution_lo = LPWC::corr.bestlag(top_var, timepoints = timepoints, max.lag = 20, penalty = "low", iter = 10)
