@@ -83,7 +83,7 @@ tuner <- function(dataFile, sd_cv_thresh){
 }
 
 get_time_stamp_wksp_file <- function(basename){
-    return(paste0("wkspace_all.RData_", format(Sys.time(), "%Y%m%d_%H%M%S_")))
+    return(paste0("wkspace_all.RData_", format(Sys.time(), "%Y%m%d_%H%M%S")))
 }
 
 # groups = cutree(clust, k=10)
