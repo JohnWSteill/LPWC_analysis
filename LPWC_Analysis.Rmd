@@ -8,41 +8,33 @@ output: pdf_document
 
 ## The application of LPWC to a long time series. 
 
-Lag Penalized Weighted Correlation for Time Series Clustering (LPWC) is
-described both in a [paper on bioRxiv](https://doi.org/10.1101/292615) and its
-[github repository](https://github.com/gitter-lab/LPWC).
+Lag Penalized Weighted Correlation for Time Series Clustering (LPWC) is described both in a [paper on bioRxiv](https://doi.org/10.1101/292615) and its [github repository](https://github.com/gitter-lab/LPWC). The algorithm accomplishes two tasks: it chooses optimal lags to offset sequences, and build an all-to-all distance matrix which can then be made available for various hierarchical clustering. 
 
-Briefly the algorithm accomplishes two main tasks: it chooses optimal lags to 
-offset sequences, and build an all-to-all distance matrix which can then be made
-available for various hierarchical clustering. For this 
-application, I am using data from Thomson Lab Submission 391: "Characterize the 
-progression from ES to mesendoderm to definitive endoderm (4 days) and to SOX2+ 
-foregut endoderm (8 days). This submission is a robotic hourly time course 
-collection over the first 4 days of differentiation (total 12 days). 
-Each time point is collected at triplicates."
+For this application, I am using data from Thomson Lab Submission 391: "Characterize the progression from ES to mesendoderm to definitive endoderm (4 days) and to SOX2+ foregut endoderm (8 days). This submission is a robotic hourly time course collection over the first 4 days of differentiation (total 12 days). Each time point is collected at triplicates."
 
 For this data set the sequences are the normalized expression values for each 
-gene. 
+gene. Because LPWC aligns after recaling each sequence individually, we must filter out low-variance genes. I chose a filtering function of Var(x) / mean(x),
+as choosing the highest variance genes merely chose the genes with very large expression values, and using the coefficient of variance selected the smallest. (Yury Bukhman suggested using the variance of the log values, I have not yet repeated with this strategy. )
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(here)
+source('LPWC_Analysis.R')
+if (file.exists('wkspace_lo.RData')){
+    load(file='wkspace_lo.RData')
+}
+# Maybe cluster genes first then correlate.
+# Maybe just describe the application
+# > z = data.frame(x=1, y= tpm_lo$solution$lags)
+# > p <- ggplot(z, aes(x, y))
+#m> p + geom_violin()
+```
 
 
 
 
 
-<!-- ```{r setup, include=FALSE} -->
-<!-- knitr::opts_chunk$set(echo = TRUE) -->
-<!-- #install.packages("LPWC", repos = "http://cran.us.r-project.org") -->
-<!-- library(ggplot2) -->
-<!-- library(here) -->
-<!-- source('LPWC_Analysis_Utilities.R') -->
-<!-- if (file.exists('wkspace_lo.RData')){ -->
-<!--     load(file='wkspace_lo.RData') -->
-<!-- } -->
-<!-- # Maybe cluster genes first then correlate.  -->
-<!-- # Maybe just describe the application  -->
-<!-- # > z = data.frame(x=1, y= tpm_lo$solution$lags) -->
-<!-- # > p <- ggplot(z, aes(x, y)) -->
-<!-- #m> p + geom_violin() -->
-<!-- ``` -->
 <!-- First we examined raw expected counts -->
 
 <!-- ```{r, include=TRUE} -->

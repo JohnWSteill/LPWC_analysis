@@ -1,6 +1,4 @@
-#install.packages("LPWC", repos = "http://cran.us.r-project.org")
-library(LPWC)
-library(here)
+
 
 dbg_fn <- function(){
     return (list(solution=1, dist=2, clust=3))
