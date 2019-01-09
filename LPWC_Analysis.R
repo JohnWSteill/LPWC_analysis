@@ -59,8 +59,10 @@ draw_plot <- function(tgt_gene){
         df[g_indx,'lag_t'] = df[g_indx,'t'] + lag
     }
 
-    ggplot(df, aes(t, lg, group=factor(genes))) + geom_smooth(aes(color=factor(genes)))
-    ggplot(df, aes(lag_t, lg, group=factor(genes))) + geom_smooth(aes(color=factor(genes)), se=FALSE) +
+    ggplot(df, aes(t, lg, group=factor(genes))) +
+        geom_smooth(aes(color=factor(genes)))
+    ggplot(df, aes(lag_t, lg, group=factor(genes))) +
+        geom_smooth(aes(color=factor(genes)), se=FALSE) +
         geom_point(aes(color=factor(genes)), alpha = .2) +
         xlab('Time(h) with Lag adjustment') +
         ylab('Log10 TPM')
@@ -75,8 +77,10 @@ runrun_all <-function(){
     # Used to discover parameters of 175 & 40
     # dat = tuner(dataFile=EC_DATA_FILE, sd_cv_thresh=175)
     # dat = tuner(dataFile=TPM_DATA_FILE, sd_cv_thresh=40)
-    high_var_ec_data = get_high_var_genes(dataFile=EC_DATA_FILE, sd_cv_thresh=175)
-    high_var_tpm_data = get_high_var_genes(dataFile=TPM_DATA_FILE, sd_cv_thresh=40)
+    high_var_ec_data = get_high_var_genes(
+        dataFile=EC_DATA_FILE, sd_cv_thresh=175)
+    high_var_tpm_data = get_high_var_genes(
+        dataFile=TPM_DATA_FILE, sd_cv_thresh=40)
     try(load('wkspace_all'))
     if (!("tpm_hi" %in% ls())){
         tpm_lo =run_lo_lpwc(dat=high_var_tpm_data, timepoints = 0:96)
@@ -118,7 +122,8 @@ get_high_var_genes <- function(dataFile, sd_cv_thresh=500){
     # Look for packages in Bioconductor
     my_data <- read.table(dataFile, header=TRUE, row.names=1, sep = '\t',  quote = "", comment.char = "")
     my_data <-  my_data[,-ncol(my_data)] # Drop description
-    my_data$sd_coef_var <-  apply(my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
+    my_data$sd_coef_var <-  apply(
+        my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
     my_data$sd_coef_var[is.na(my_data$sd_coef_var)]<-0 #YB why na's?
     return(subset(my_data[my_data$sd_coef_var>sd_cv_thresh,],
                   select=-c(sd_coef_var)))

@@ -9,9 +9,12 @@ get_high_var_genes <- function(dataFile, sd_cv_thresh=500){
     # I squared the sd to get larger counts.
     # YB: Try log transforming 1st, then take highest var
     # Look for packages in Bioconductor
-    my_data <- read.table(dataFile, header=TRUE, row.names=1, sep = '\t',  quote = "", comment.char = "")
+    my_data <- read.table(
+        dataFile, header=TRUE, row.names=1,
+        sep = '\t',  quote = "", comment.char = "")
     my_data <-  my_data[,-ncol(my_data)] # Drop description
-    my_data$sd_coef_var <-  apply(my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
+    my_data$sd_coef_var <-  apply(
+        my_data, 1, function(x) sd(x) * sd(x)/ mean(x))
     my_data$sd_coef_var[is.na(my_data$sd_coef_var)]<-0 #YB why na's?
     return(subset(my_data[my_data$sd_coef_var>sd_cv_thresh,],
                   select=-c(sd_coef_var)))

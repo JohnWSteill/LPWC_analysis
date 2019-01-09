@@ -5,21 +5,30 @@ author: "John Steill"
 urlcolor: blue
 output: pdf_document
 ---
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(here)
 ## The application of LPWC to a long time series. 
+```
 
 Lag Penalized Weighted Correlation for Time Series Clustering (LPWC) is described both in a [paper on bioRxiv](https://doi.org/10.1101/292615) and its [github repository](https://github.com/gitter-lab/LPWC). The algorithm accomplishes two tasks: it chooses optimal lags to offset sequences, and build an all-to-all distance matrix which can then be made available for various hierarchical clustering. 
 
 For this application, I am using data from Thomson Lab Submission 391: "Characterize the progression from ES to mesendoderm to definitive endoderm (4 days) and to SOX2+ foregut endoderm (8 days). This submission is a robotic hourly time course collection over the first 4 days of differentiation (total 12 days). Each time point is collected at triplicates."
 
 For this data set the sequences are the normalized expression values for each 
-gene. Because LPWC aligns after recaling each sequence individually, we must filter out low-variance genes. I chose a filtering function of Var(x) / mean(x),
-as choosing the highest variance genes merely chose the genes with very large expression values, and using the coefficient of variance selected the smallest. (Yury Bukhman suggested using the variance of the log values, I have not yet repeated with this strategy. )
+gene. Because LPWC aligns after rescaling each sequence individually, we must filter out low-variance genes. I chose a filtering function of Var(x) / mean(x) 
+because choosing the highest variance genes selects genes with the largest expression values. Ont the other hand, using the coefficient of variance selects the smallest expression. This function seems a reasonable balance. (Yury Bukhman suggested using the variance of the log values, I have not yet repeated with this strategy. )
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(ggplot2)
-library(here)
+(To be deleted:)
+I have summarized the hi and lo runs.
+I have created a single Rdata in Derived_Data from the myriad Rdatas in Unproc_Data
+
+``` {r, include=FALSE}
+load(here('Unproc_Rdata','wkspace_all.RData_20180825_164425'))
+# I predict high_var_tpm_data will be the same in each file. True?
+# I predict tpm_hi and tpm_lo might be different. 
+
 source('LPWC_Analysis.R')
 if (file.exists('wkspace_lo.RData')){
     load(file='wkspace_lo.RData')
